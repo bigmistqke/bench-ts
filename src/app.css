@@ -1,0 +1,39 @@
+@font-face {
+  font-family: 'GeistMono';
+  src: url('./assets/GeistMono-Regular.otf') format('opentype');
+}
+@font-face {
+  font-family: 'GeistSans';
+  src: url('./assets/Geist-Regular.otf') format('opentype');
+}
+@font-face {
+  font-family: 'GeistSansBlack';
+  src: url('./assets/Geist-Black.otf') format('opentype');
+}
+
+:root {
+  --darkest-color: #070f2b;
+  --dark-color: #1b1a55;
+  --medium-color: #535c91;
+  --light-color: #9290c3;
+}
+
+body {
+  padding: 0px;
+  margin: 0px;
+  font-family: GeistSans;
+  height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  all: unset;
+}
+
+h2 {
+  font-size: 21pt;
+}
+h3 {
+  font-size: 16pt;
+}

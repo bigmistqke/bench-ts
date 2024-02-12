@@ -1,0 +1,28 @@
+.content-grid,
+.container {
+  display: grid;
+  gap: 20px;
+  align-items: baseline;
+  grid-template-columns: [full-start] 50px [breakout-start] 25px [content-start label-start] 1fr [label-end result-start] 1fr [content-end breakout-end extra-start] 25px [result-end] 50px [full-end extra-end];
+}
+
+.content-grid > * {
+  grid-column: content;
+}
+
+.container,
+.full {
+  grid-column: full;
+}
+.break-out {
+  grid-column: breakout;
+}
+.extra {
+  grid-column: extra;
+}
+.label {
+  grid-column: label;
+}
+.result {
+  grid-column: result;
+}

@@ -1,0 +1,28 @@
+.panel {
+  padding: 50px 0px;
+  overflow: auto;
+}
+
+.sticky {
+  position: sticky;
+  top: 0px;
+  z-index: 1;
+}
+
+.button {
+  border-radius: 50px;
+  & button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
