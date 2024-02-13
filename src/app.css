@@ -16,6 +16,9 @@
   --dark-color: #1b1a55;
   --medium-color: #535c91;
   --light-color: #9290c3;
+
+  --color-grey-light: rgb(231, 231, 231);
+  --color-grey: rgb(185, 185, 185);
 }
 
 body {
@@ -33,7 +36,9 @@ h3 {
 
 h2 {
   font-size: 21pt;
+  line-height: 21pt;
 }
 h3 {
   font-size: 16pt;
+  line-height: 16pt;
 }

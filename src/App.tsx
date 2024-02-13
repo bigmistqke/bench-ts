@@ -1,14 +1,14 @@
 // @refresh reload
 import clsx from 'clsx'
-import { Component, ComponentProps, For, Resource, Show, createSignal } from 'solid-js'
+import { Component, ComponentProps, Resource, createEffect, createSignal } from 'solid-js'
 
-import { EditorPanel } from './editor-panel'
+import { EditorPanel } from './editor-panel/editor-panel'
+import { ResultPanel, ResultType } from './result-panel/result-panel'
 
-import { createStore } from 'solid-js/store'
 import './app.css'
 import app from './app.module.css'
 import general from './general.module.css'
-import grid from './result-panel-grid.module.css'
+import { waitFor, when } from './utils'
 
 export const Button: Component<ComponentProps<'button'>> = (props) => {
   return (
@@ -20,73 +20,90 @@ export const Button: Component<ComponentProps<'button'>> = (props) => {
 
 export default function App() {
   const [modules, setModules] = createSignal<Resource<Record<string, any>>[]>([])
-  const [results, setResults] = createStore<({ mean: number; highest: number; total: number } | undefined)[]>([])
+  const [results, setResults] = createSignal<{ bestTotal: number; results: (ResultType | undefined)[] }>()
 
-  const AMOUNT = 1000
+  const AMOUNT = 100
 
-  const runTests = () => {
-    const _modules = modules()
-    if (!_modules) return
+  const runTests = () =>
+    when(modules)(async (modules) => {
+      const run = async () => {
+        const results: (Omit<ResultType, 'mean'> | undefined)[] = []
+        for (let i = 0; i < modules.length; i++) {
+          const module = modules[i]!()
+          try {
+            if (!module || !(typeof module.default === 'function')) {
+              results[i] = undefined
+            } else {
+              let times: number[] = new Array(AMOUNT)
+              let highest = 0
+              let lowest = Infinity
 
-    for (let i = 0; i < _modules.length; i++) {
-      const module = _modules[i]!()
-      if (!module || !(typeof module.default === 'function')) {
-        setResults(i, undefined)
-      } else {
-        try {
-          let results: number[] = new Array(AMOUNT)
-          let highest = 0
-          for (let j = 0; j < AMOUNT; j++) {
-            const start = performance.now()
-            module.default()
-            const result = performance.now() - start
-            if (result > highest) {
-              highest = result
+              for (let j = 0; j < AMOUNT; j++) {
+                const start = performance.now()
+                module.default()
+                const time = performance.now() - start
+                if (time > highest) {
+                  highest = time
+                }
+                if (time < lowest) {
+                  lowest = time
+                }
+                times[j] = time
+              }
+              const total = times?.reduce((a, b) => a + b)
+
+              results[i] = {
+                total,
+                highest,
+                lowest,
+              }
             }
-            results[j] = result
+          } catch (err) {
+            console.error(err)
+            results[i] = undefined
+          } finally {
+            // delay to gc
+            await waitFor(100)
           }
-          const total = results?.reduce((a, b) => a + b)
-          setResults(i, {
-            total,
-            mean: total / AMOUNT,
-            highest,
-          })
-        } catch (err) {
-          console.error(err)
-          setResults(i, undefined)
         }
+        return results
       }
-    }
-  }
+
+      const runs = await Promise.all(Array.from({ length: 10 }).map((v) => run()))
+      const results = runs.reduce((a, b) =>
+        a.map((aItem, index) => {
+          const bItem = b[index]
+          if (!aItem || !bItem) return undefined
+          return {
+            total: aItem.total + bItem.total,
+            highest: aItem.highest > bItem.highest ? aItem.highest : bItem.highest,
+            lowest: aItem.lowest < bItem.lowest ? aItem.lowest : bItem.lowest,
+          }
+        })
+      )
+
+      let bestTotal = Infinity
+      results.forEach((result) => {
+        if (!result) return
+        if (result.total < bestTotal) bestTotal = result.total
+      })
+
+      setResults({ bestTotal, results })
+    })
+
+  createEffect(() => {
+    if (results.length !== 0) return
+    when(modules)((modules) => {
+      if (modules.length > 0 && modules.every((v) => v())) {
+        runTests()
+      }
+    })
+  })
 
   return (
     <main class={app.main}>
       <EditorPanel onUpdate={setModules} />
-      <div class={clsx(results['results-panel'], general.panel, general.sticky, grid['content-grid'])}>
-        <h2 class={grid['break-out']}>Results</h2>
-        <div class={clsx(grid.extra, general.sticky, general.center)} style={{ gap: '10px' }}>
-          <Button onClick={runTests}>run</Button>
-        </div>
-        <For each={results}>
-          {(result, index) => (
-            <>
-              <h3 class={grid['break-out']}>Test {index()}</h3>
-              <Show when={result}>
-                {(result) => (
-                  <For each={Object.entries(result())}>
-                    {([key, value]) => (
-                      <>
-                        <label class={grid.label}>{key}</label>
-                        <span class={grid.result}>{value.toFixed(4)}ms</span>
-                      </>
-                    )}
-                  </For>
-                )}
-              </Show>
-            </>
-          )}
-        </For>
-      </div>
+      <ResultPanel runTests={runTests} results={results()} />
     </main>
   )
 }

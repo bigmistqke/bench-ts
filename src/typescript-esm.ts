@@ -21,32 +21,10 @@ function modifyImportPaths(code: string, alias?: Record<string, string>) {
     }
   })
 }
-function generateModuleDeclaration(fileName: string) {
-  const program = languageService.getProgram()
-  if (!program) return
-  const sourceFile = program.getSourceFile(fileName)
-  if (!sourceFile) return
-  const checker = program.getTypeChecker()
-  const symbol = checker.getSymbolAtLocation(sourceFile)
-  if (!symbol) return
-  const exports = checker.getExportsOfModule(symbol)
-
-  let declaration = `declare module "${fileName.split('.')[0]}" {\n`
-  exports.forEach((exp) => {
-    const type = checker.getTypeOfSymbolAtLocation(exp, exp.valueDeclaration)
-    const typeName = checker.typeToString(type)
-    declaration += `  export const ${exp.getName()}: ${typeName};\n`
-  })
-  declaration += `}`
-
-  return declaration
-}
-const load = (url: Accessor<string>) => import(url())
 
 export class TsNode {
   id: string
   path: Accessor<string>
-  declaration: string
   code: {
     js: string
     ts: string
@@ -69,7 +47,6 @@ export class TsNode {
   }) {
     this.id = id
     this.path = path
-    this.declaration = generateModuleDeclaration(id)!
 
     this.code = {
       get js() {
@@ -84,9 +61,6 @@ export class TsNode {
   }
   get module() {
     return this._module
-  }
-  getType(symbolName: string) {
-    return getType(this.id, symbolName)
   }
 }
 
@@ -135,65 +109,4 @@ function updateModule(fileName: string, newContent: string) {
     file.content = newContent
     file.version++
   }
-}
-
-const servicesHost: ts.LanguageServiceHost = {
-  getScriptFileNames: () => Object.keys(tsModules),
-  getScriptVersion: (fileName) => tsModules[fileName].version.toString(),
-  getScriptSnapshot: (fileName) => {
-    return ts.ScriptSnapshot.fromString(tsModules[fileName].content)
-  },
-  getCurrentDirectory: () => '/',
-  getCompilationSettings: () => ({
-    noLib: true,
-    allowJs: true,
-    target: ts.ScriptTarget.Latest,
-    module: ts.ModuleKind.CommonJS,
-    moduleResolution: ts.ModuleResolutionKind.NodeJs,
-  }),
-  getDefaultLibFileName: () => 'lib.d.ts',
-  fileExists: (fileName) => !!tsModules[fileName],
-  readFile: (fileName: string) => tsModules[fileName].content || '',
-  resolveModuleNames(moduleNames) {
-    return moduleNames.map((name) => {
-      // If we're dealing with relative paths, normalize them
-      if (name.startsWith('./')) {
-        name = name.substring(2)
-      }
-
-      if (tsModules[name]) {
-        return {
-          resolvedFileName: name,
-          extension: '.ts',
-        }
-      }
-
-      return undefined // The module couldn't be resolved
-    })
-  },
-}
-
-const languageService = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
-
-function getType(fileName: string, symbolName: string) {
-  const program = languageService.getProgram()!
-  const sourceFile = program.getSourceFile(fileName)!
-  const checker = program.getTypeChecker()
-
-  function findNodeByName(sourceFile: ts.SourceFile, name: string) {
-    let foundNode = null
-    function visit(node: ts.SourceFile | ts.Node) {
-      if (ts.isIdentifier(node) && node.getText() === name) {
-        foundNode = node
-        return
-      }
-      ts.forEachChild(node, visit)
-    }
-    visit(sourceFile)
-    return foundNode
-  }
-
-  const node = findNodeByName(sourceFile, symbolName)!
-  const type = checker.getTypeAtLocation(node)
-  return checker.typeToString(type)
 }

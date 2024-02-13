@@ -1,6 +1,9 @@
 .panel {
-  padding: 50px 0px;
+  max-height: 100vh;
   overflow: auto;
+  & > div {
+    padding: 50px 0px;
+  }
 }
 
 .sticky {
@@ -12,13 +15,19 @@
 .button {
   border-radius: 50px;
   & button {
+    font-size: 10pt;
     background: transparent;
     border: none;
+    color: blue;
     cursor: pointer;
     &:hover {
       text-decoration: underline;
     }
   }
+}
+
+.extra-button {
+  line-height: 32pt;
 }
 
 .center {
