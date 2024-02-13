@@ -14,14 +14,16 @@ const order: (keyof ResultType)[] = ['total', 'highest', 'lowest']
 export const ResultPanel = (props: {
   results: { bestTotal: number; results: (ResultType | undefined)[] } | undefined
   runTests: () => void
+  running: boolean
+  loading: boolean
 }) => {
   return (
     <div class={clsx(general.panel, styles['results-panel-container'])}>
       <div class={clsx(styles['results-panel'], general.sticky, grid['content-grid'])}>
         <h2 class={grid.break}>Results</h2>
         <div class={clsx(grid.extra, general.sticky, general.center)} style={{ gap: '10px' }}>
-          <Button class={general['extra-button']} onClick={props.runTests}>
-            run
+          <Button class={general['extra-button']} onClick={() => !props.running && !props.loading && props.runTests()}>
+            {props.running ? 'running' : props.loading ? 'loading' : 'run'}
           </Button>
         </div>
         <Show when={props.results}>
@@ -31,7 +33,7 @@ export const ResultPanel = (props: {
                 <>
                   <div class={clsx(styles.title, grid.break)}>
                     <h3>Test {index()}</h3>
-                    <span style={{ color: result!.total === results().bestTotal ? 'green' : 'red' }}>
+                    <span style={{ color: result?.total === results().bestTotal ? 'green' : 'red' }}>
                       <Show when={result} fallback="error">
                         {result!.total === results().bestTotal ? 1 : (result!.total / results().bestTotal).toFixed(2)}
                       </Show>

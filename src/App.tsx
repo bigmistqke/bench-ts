@@ -21,17 +21,20 @@ export const Button: Component<ComponentProps<'button'>> = (props) => {
 export default function App() {
   const [modules, setModules] = createSignal<Resource<Record<string, any>>[]>([])
   const [results, setResults] = createSignal<{ bestTotal: number; results: (ResultType | undefined)[] }>()
+  const [running, setRunning] = createSignal(false)
 
   const AMOUNT = 100
 
   const runTests = () =>
     when(modules)(async (modules) => {
+      if (modules.every((v) => !v)) return
+      setRunning(true)
       const run = async () => {
         const results: (Omit<ResultType, 'mean'> | undefined)[] = []
         for (let i = 0; i < modules.length; i++) {
-          const module = modules[i]!()
+          const module = modules[i]!
           try {
-            if (!module || !(typeof module.default === 'function')) {
+            if (!module || !(typeof module === 'function')) {
               results[i] = undefined
             } else {
               let times: number[] = new Array(AMOUNT)
@@ -40,7 +43,7 @@ export default function App() {
 
               for (let j = 0; j < AMOUNT; j++) {
                 const start = performance.now()
-                module.default()
+                module()
                 const time = performance.now() - start
                 if (time > highest) {
                   highest = time
@@ -89,12 +92,13 @@ export default function App() {
       })
 
       setResults({ bestTotal, results })
+      setRunning(false)
     })
 
   createEffect(() => {
     if (results.length !== 0) return
     when(modules)((modules) => {
-      if (modules.length > 0 && modules.every((v) => v())) {
+      if (modules.length > 0) {
         runTests()
       }
     })
@@ -103,7 +107,7 @@ export default function App() {
   return (
     <main class={app.main}>
       <EditorPanel onUpdate={setModules} />
-      <ResultPanel runTests={runTests} results={results()} />
+      <ResultPanel runTests={runTests} results={results()} running={running()} loading={modules().every((v) => !v)} />
     </main>
   )
 }

@@ -1,9 +1,8 @@
 import clsx from 'clsx'
-import { Component, createSignal } from 'solid-js'
-import { when } from '../utils'
+import { Component, ComponentProps, createSignal } from 'solid-js'
 
 import { Button } from '../App'
-import { TsNode, typescript } from '../typescript-esm'
+import { TsNode } from '../typescript-esm'
 import { Editor } from './editor/editor'
 
 import grid from './editor-panel-grid.module.css'
@@ -19,18 +18,17 @@ export type Test = {
 }
 
 let _id = 0
-export const TestEditor: Component<{
-  autoFocus: boolean
-  title: string
-  alias?: Record<string, string>
-  code: string
-  onUpdate: (getModule: Test['getModule']) => void
-  onDelete: () => void
-}> = (props) => {
-  const [code, setCode] = createSignal<string>(props.code)
+export const TestEditor: Component<
+  Omit<ComponentProps<typeof Editor>, 'onBlur' | 'onInitialized' | 'name'> & {
+    title: string
+    // onUpdate: (getModule: Test['getModule']) => void
+    onDelete: () => void
+  }
+> = (props) => {
+  const [code, setCode] = createSignal<string>(props.initialValue || '')
   let id = (_id++).toString()
 
-  props.onUpdate((alias) => when(code)(async (code) => (await typescript(code, { alias })).module))
+  // props.onUpdate((alias) => when(code)(async (code) => (await typescript(code, { alias })).module))
 
   return (
     <>
@@ -40,14 +38,7 @@ export const TestEditor: Component<{
           delete
         </Button>
       </div>
-      <Editor
-        autoFocus={props.autoFocus}
-        initialValue={props.code}
-        class={styles.editor}
-        onBlur={setCode}
-        onInitialized={setCode}
-        name={id}
-      />
+      <Editor {...props} class={styles.editor} onBlur={setCode} onInitialized={setCode} name={id} alias={props.alias} />
     </>
   )
 }

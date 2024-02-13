@@ -1,11 +1,8 @@
-import { Monaco } from '@monaco-editor/loader'
 import clsx from 'clsx'
-import { For, Resource, Show, createEffect, createMemo, createResource, createSignal, mapArray } from 'solid-js'
+import { For, Resource, createEffect, createSignal } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
-import { when } from '../utils'
 
 import { Button } from '../App'
-import { TsNode, typescript } from '../typescript-esm'
 import { Editor } from './editor/editor'
 
 import general from '../general.module.css'
@@ -14,7 +11,7 @@ import styles from './editor-panel.module.css'
 import { Test, TestEditor } from './test-editor'
 
 export const EditorPanel = (props: { onUpdate: (modules: Resource<any>[]) => void }) => {
-  const [setup, setSetup] = createSignal<TsNode>()
+  const [alias, setAlias] = createSignal<Record<string, string>>()
   const [tests, setTests] = createStore<Test[]>([
     {
       autoFocus: false,
@@ -76,27 +73,7 @@ export default () => {
     ])
   }
 
-  const alias = () => when(setup()?.path)((setup) => ({ './setup': setup }))
-
-  const updateSetup = async (code: string, monaco: Monaco) => {
-    const result = await typescript(code, { name: 'setup.ts' })
-    setSetup(result)
-  }
-
-  const modules = createMemo(
-    mapArray(
-      () => tests,
-      (test) =>
-        createResource(
-          () => [test.getModule, alias()],
-          ([getModule]) => when(() => test.getModule, alias)((getModule, alias) => getModule(alias))
-        )[0]
-    )
-  )
-
-  createEffect(() => props.onUpdate(modules()))
-
-  createEffect(() => console.log(modules().map((v) => v())))
+  createEffect(() => props.onUpdate(tests.map((v) => v.module)))
 
   return (
     <div class={general.panel}>
@@ -105,9 +82,9 @@ export default () => {
         <Editor
           initialValue='export const arr = new Array(1000).fill("").map((v,i) => i);'
           class={styles.editor}
-          onInitialized={updateSetup}
-          onBlur={updateSetup}
+          onCompilation={(module) => setAlias({ './setup': module.url, './setup.ts': module.url })}
           name="setup"
+          alias={{}}
         />
         <h2 class={grid.break}>Tests</h2>
         <div class={clsx(grid.extra, general.sticky, general.center)} style={{ gap: '10px' }}>
@@ -115,29 +92,27 @@ export default () => {
             add
           </Button>
         </div>
-        <Show when={setup}>
-          <For each={tests}>
-            {(test, i) => (
-              <TestEditor
-                autoFocus={test.autoFocus}
-                code={test.code}
-                title={test.title}
-                alias={alias()}
-                onUpdate={(getModule) => {
-                  console.log('getModule', getModule)
-                  setTests(i(), { getModule })
-                }}
-                onDelete={() => {
-                  setTests(
-                    produce((tests) => {
-                      tests.splice(i(), 1)
-                    })
-                  )
-                }}
-              />
-            )}
-          </For>
-        </Show>
+        <For each={tests}>
+          {(test, i) => (
+            <TestEditor
+              alias={alias()}
+              autoFocus={test.autoFocus}
+              initialValue={test.code}
+              title={test.title}
+              shouldCompile={alias() !== undefined}
+              onCompilation={({ module }) => {
+                setTests(i(), { module: module.default })
+              }}
+              onDelete={() => {
+                setTests(
+                  produce((tests) => {
+                    tests.splice(i(), 1)
+                  })
+                )
+              }}
+            />
+          )}
+        </For>
       </div>
     </div>
   )
