@@ -1,0 +1,11 @@
+.grid,
+.container {
+  display: grid;
+  gap: 10px;
+  align-items: baseline;
+  grid-template-columns: 25px [content] 1fr [content] 25px;
+}
+
+.grid > * {
+  grid-column: content;
+}

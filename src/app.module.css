@@ -1,7 +1,43 @@
 .main {
   display: grid;
-  grid-template-columns: 2fr 400px;
+  grid-template-columns: 100px 2fr 400px;
   max-height: 100vh;
   overflow: hidden;
   align-items: start;
+
+  transition: background 0.25s, color 0.25s;
+
+  &.dark {
+    --darkest-color: #070f2b;
+    --dark-color: #1b1a55;
+    --medium-color: #535c91;
+    --light-color: #9290c3;
+
+    --color-button: rgb(131, 131, 255);
+    --color-bg: #121212;
+    --color-font: rgb(231, 231, 231);
+    --color-grey-dark: rgb(185, 185, 185);
+    --color-grey: rgb(68, 68, 68);
+    --color-grey-light: rgb(48, 48, 48);
+
+    background: var(--color-bg);
+    color: var(--color-font);
+  }
+
+  &.light {
+    --darkest-color: #070f2b;
+    --dark-color: #1b1a55;
+    --medium-color: #535c91;
+    --light-color: #9290c3;
+
+    --color-button: rgb(45, 45, 255);
+    --color-grey-light: rgb(231, 231, 231);
+    --color-grey: rgb(185, 185, 185);
+    --color-grey-dark: rgb(68, 68, 68);
+    --color-font: rgb(48, 48, 48);
+    --color-bg: #f8f8f83c;
+
+    background: var(--color-bg);
+    color: var(--color-font);
+  }
 }

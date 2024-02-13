@@ -1,37 +1,38 @@
 // @refresh reload
 import clsx from 'clsx'
-import { Component, ComponentProps, Resource, createEffect, createSignal } from 'solid-js'
+import { Resource, createSignal } from 'solid-js'
 
 import { EditorPanel } from './editor-panel/editor-panel'
 import { ResultPanel, ResultType } from './result-panel/result-panel'
 
 import './app.css'
-import app from './app.module.css'
-import general from './general.module.css'
+import styles from './app.module.css'
+import { SideBar } from './side-bar/side-bar'
 import { waitFor, when } from './utils'
 
-export const Button: Component<ComponentProps<'button'>> = (props) => {
-  return (
-    <div class={clsx(general.button, props.class)}>
-      <button onClick={props.onClick}>{props.children}</button>
-    </div>
-  )
-}
-
 export default function App() {
+  const [mode, setMode] = createSignal<'dark' | 'light'>(
+    window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  )
   const [modules, setModules] = createSignal<Resource<Record<string, any>>[]>([])
   const [results, setResults] = createSignal<{ bestTotal: number; results: (ResultType | undefined)[] }>()
-  const [running, setRunning] = createSignal(false)
+  const [runCount, setRunCount] = createSignal<number | undefined>(undefined)
 
   const AMOUNT = 100
+
+  let runId = 0
 
   const runTests = () =>
     when(modules)(async (modules) => {
       if (modules.every((v) => !v)) return
-      setRunning(true)
+      runId++
+      const id = runId
+      setRunCount(0)
       const run = async () => {
+        if (id !== runId) throw true
         const results: (Omit<ResultType, 'mean'> | undefined)[] = []
         for (let i = 0; i < modules.length; i++) {
+          if (id !== runId) throw true
           const module = modules[i]!
           try {
             if (!module || !(typeof module === 'function')) {
@@ -42,6 +43,7 @@ export default function App() {
               let lowest = Infinity
 
               for (let j = 0; j < AMOUNT; j++) {
+                if (id !== runId) throw true
                 const start = performance.now()
                 module()
                 const time = performance.now() - start
@@ -52,6 +54,8 @@ export default function App() {
                   lowest = time
                 }
                 times[j] = time
+                // await waitFor(0)
+                setRunCount((c) => (c !== undefined ? c + 1 : undefined))
               }
               const total = times?.reduce((a, b) => a + b)
 
@@ -60,54 +64,52 @@ export default function App() {
                 highest,
                 lowest,
               }
+              await waitFor(50)
             }
           } catch (err) {
-            console.error(err)
+            if (err !== true) console.error(err)
             results[i] = undefined
-          } finally {
-            // delay to gc
-            await waitFor(100)
           }
         }
         return results
       }
 
-      const runs = await Promise.all(Array.from({ length: 10 }).map((v) => run()))
-      const results = runs.reduce((a, b) =>
-        a.map((aItem, index) => {
-          const bItem = b[index]
-          if (!aItem || !bItem) return undefined
-          return {
-            total: aItem.total + bItem.total,
-            highest: aItem.highest > bItem.highest ? aItem.highest : bItem.highest,
-            lowest: aItem.lowest < bItem.lowest ? aItem.lowest : bItem.lowest,
-          }
+      try {
+        const results = await run()
+
+        let bestTotal = Infinity
+        results.forEach((result) => {
+          if (!result) return
+          if (result.total < bestTotal) bestTotal = result.total
         })
-      )
 
-      let bestTotal = Infinity
-      results.forEach((result) => {
-        if (!result) return
-        if (result.total < bestTotal) bestTotal = result.total
-      })
+        if (id !== runId) throw true
 
-      setResults({ bestTotal, results })
-      setRunning(false)
+        setResults({ bestTotal, results })
+        setRunCount(undefined)
+      } catch (err) {}
     })
 
-  createEffect(() => {
+  /* createEffect(() => {
     if (results.length !== 0) return
     when(modules)((modules) => {
       if (modules.length > 0) {
         runTests()
       }
     })
-  })
+  }) */
 
   return (
-    <main class={app.main}>
+    <main class={clsx(styles.main, styles[mode()])}>
+      <SideBar setMode={setMode} mode={mode()} />
       <EditorPanel onUpdate={setModules} />
-      <ResultPanel runTests={runTests} results={results()} running={running()} loading={modules().every((v) => !v)} />
+      <ResultPanel
+        amount={AMOUNT}
+        runCount={runCount()}
+        runTests={runTests}
+        results={results()}
+        loading={modules().every((v) => !v)}
+      />
     </main>
   )
 }

@@ -41,10 +41,7 @@ createRenderEffect(() =>
     setTypescriptWorker(() => worker)
   })
 )
-/* const [typescriptWorker] = createResource(all(monaco), async ([monaco]) => {
-  return worker
-})
- */
+
 function modifyImportPaths(code: string, alias?: Record<string, string>) {
   return code.replace(/import ([^"']+) from ["']([^"']+)["']/g, (match, varName, path) => {
     if (alias) {
@@ -92,24 +89,16 @@ export const Editor: Component<
   const [code, setCode] = createSignal<string | undefined>(props.initialValue)
 
   const [module] = createResource(
-    all(
-      client,
-      model,
-      code,
-      () => props.alias,
-      () => props.shouldCompile !== false
-    ),
-    async ([client, model, code, alias]) =>
+    all(client, model, code, () => props.shouldCompile !== false),
+    async ([client, model]) =>
       client.getEmitOutput(`file://${model.uri.path}`).then(async (result) => {
-        console.log('compile!!!', alias)
-
         if (result.outputFiles.length > 0) {
           // get module-url of transpiled code
           const url = URL.createObjectURL(
             new Blob(
               [
                 // replace local imports with their respective module-urls
-                modifyImportPaths(result.outputFiles[0].text, alias),
+                modifyImportPaths(result.outputFiles[0].text, props.alias),
               ],
               {
                 type: 'application/javascript',
@@ -126,13 +115,6 @@ export const Editor: Component<
       })
   )
 
-  createEffect(() =>
-    when(module)((module) => {
-      console.log('compilateion(!!')
-      props.onCompilation?.(module)
-    })
-  )
-
   createEffect(() => {
     when(
       monaco,
@@ -142,6 +124,7 @@ export const Editor: Component<
         value: props.initialValue || '',
         language: 'typescript',
         automaticLayout: true,
+        theme: 'vs-dark',
         model,
       })
 
@@ -161,6 +144,8 @@ export const Editor: Component<
       })
     })
   })
+
+  createEffect(() => when(module)((module) => props.onCompilation?.(module)))
 
   const onMouseDown = async (e: MouseEvent) => {
     const start = height()

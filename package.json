@@ -19,6 +19,7 @@
     "clsx": "^2.1.0",
     "monaco": "^1.201704190613.0",
     "solid-js": "^1.8.11",
+    "solid-textarea-autosize": "^0.0.5",
     "vite-template-solid": "link:"
   }
 }

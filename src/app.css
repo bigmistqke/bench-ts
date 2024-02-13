@@ -11,21 +11,20 @@
   src: url('./assets/Geist-Black.otf') format('opentype');
 }
 
-:root {
-  --darkest-color: #070f2b;
-  --dark-color: #1b1a55;
-  --medium-color: #535c91;
-  --light-color: #9290c3;
-
-  --color-grey-light: rgb(231, 231, 231);
-  --color-grey: rgb(185, 185, 185);
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg);
   padding: 0px;
   margin: 0px;
   font-family: GeistSans;
   height: 100vh;
+  color: var(--color-font);
 }
 
 h1,

@@ -8,22 +8,8 @@
 
 .sticky {
   position: sticky;
-  top: 0px;
+  top: 50px;
   z-index: 1;
-}
-
-.button {
-  border-radius: 50px;
-  & button {
-    font-size: 10pt;
-    background: transparent;
-    border: none;
-    color: blue;
-    cursor: pointer;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 }
 
 .extra-button {
