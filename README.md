@@ -1,6 +1,6 @@
 ## BENCH-TS 🪑
 
-> minimal typescript benchmark app
+> minimal benchmark app with typescript support
 > 
 > powered by [`monaco-editor`](https://github.com/microsoft/monaco-editor) and [`solid-js`](https://www.solidjs.com/) 
 
