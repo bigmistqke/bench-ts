@@ -1,6 +1,14 @@
 .result-panel-container {
+  display: flex;
+  flex-direction: column;
   border-left: 1px solid var(--color-grey);
   height: 100vh;
+}
+
+.result-panel {
+  overflow: auto;
+  flex: 1;
+  border-bottom: 1px solid var(--color-grey);
 }
 
 .running .title,
@@ -8,12 +16,14 @@
   opacity: 0.5;
 }
 
-.result {
-  font-size: 10pt;
-}
-
 .error {
   color: red;
+}
+
+.title-container {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
 }
 
 .title {
@@ -32,9 +42,24 @@
   }
 }
 
-.result {
-  display: flex;
+.results {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: 1fr auto;
   & > label {
     flex: 1;
   }
+  & > span {
+    text-align: right;
+  }
+  & * {
+    font-size: 10pt;
+    font-family: GeistMono;
+  }
+}
+
+.description {
+  font-size: 8pt;
+  font-family: GeistMono;
+  color: var(--color-grey-dark);
 }

@@ -71,6 +71,7 @@ export const Editor: Component<
     autoFocus?: boolean
     name: string
     alias?: Record<string, string>
+    mode: 'light' | 'dark'
   }
 > = (props) => {
   let container: HTMLDivElement
@@ -80,7 +81,11 @@ export const Editor: Component<
 
   const model = createMemo(() =>
     when(monaco)((monaco) =>
-      monaco.editor.createModel(props.initialValue || '', 'typescript', monaco.Uri.parse(`file:///${props.name}.ts`))
+      monaco.editor.createModel(
+        untrack(() => props.initialValue) || '',
+        'typescript',
+        monaco.Uri.parse(`file:///${props.name}.ts`)
+      )
     )
   )
 
@@ -121,10 +126,10 @@ export const Editor: Component<
       model
     )(async (monaco, model) => {
       const editor = monaco.editor.create(container, {
-        value: props.initialValue || '',
+        value: untrack(() => props.initialValue) || '',
         language: 'typescript',
         automaticLayout: true,
-        theme: 'vs-dark',
+        theme: untrack(() => props.mode) === 'dark' ? 'vs-dark' : 'vs-light',
         model,
       })
 
@@ -141,6 +146,11 @@ export const Editor: Component<
         props.onBlur?.(editor.getValue(), monaco)
         model.setValue(value)
         setCode(value)
+      })
+
+      createEffect(() => {
+        console.log('set theme!!!')
+        monaco.editor.setTheme(props.mode === 'light' ? 'vs-light' : 'vs-dark')
       })
     })
   })

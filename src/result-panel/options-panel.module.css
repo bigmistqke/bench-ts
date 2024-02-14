@@ -1,0 +1,28 @@
+.options-panel {
+  padding: 15px 0px !important;
+  &.options-visible {
+    padding: 30px 0px !important;
+  }
+}
+.options {
+  align-items: center;
+  display: grid;
+  gap: 15px;
+  grid-template-columns: [label-start] 1fr [label-end input-start input-short-start] 0.75fr [input-short-end checkbox-start] 30px [input-end checkbox-end];
+
+  & > * {
+    overflow: hidden;
+    font-family: GeistMono;
+  }
+}
+
+.label {
+  font-size: 8pt;
+  grid-column: label;
+}
+.input {
+  grid-column: input;
+}
+.inputShort {
+  grid-column: input-short;
+}
