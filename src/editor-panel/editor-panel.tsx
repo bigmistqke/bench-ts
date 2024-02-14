@@ -1,5 +1,4 @@
 import clsx from 'clsx'
-import { autoAnimate } from 'solid-auto-animate'
 import { For, createSignal } from 'solid-js'
 import { produce } from 'solid-js/store'
 
@@ -14,7 +13,6 @@ import grid from './editor-panel-grid.module.css'
 import styles from './editor-panel.module.css'
 
 export const EditorPanel = () => {
-  autoAnimate
   const [alias, setAlias] = createSignal<Record<string, string>>()
   return (
     <div class={general.panel}>
@@ -34,9 +32,7 @@ export const EditorPanel = () => {
         />
         <h2 class={grid.break}>Tests</h2>
         <div class={clsx(grid.extra, general.sticky, general.center, styles['add-test'])}>
-          <Button class={general['extra-button']} onClick={actions.addTest}>
-            add
-          </Button>
+          <Button onClick={actions.addTest}>add</Button>
         </div>
         <For each={store.tests}>
           {(test, i) => (

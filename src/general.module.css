@@ -12,10 +12,6 @@
   z-index: 1;
 }
 
-.extra-button {
-  /* line-height: 32pt; */
-}
-
 .center {
   display: flex;
   align-items: center;

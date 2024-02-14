@@ -33,9 +33,7 @@ export const OptionsPanel = () => {
     <div class={clsx(styles['options-panel'], grid['content-grid'], optionsVisible() && styles['options-visible'])}>
       <h2 class={grid.break}>Options</h2>
       <div class={clsx(grid.extra, general.sticky, general.center)} style={{ gap: '10px' }}>
-        <Button class={general['extra-button']} onClick={() => setOptionsVisible((v) => !v)}>
-          {optionsVisible() ? 'close' : 'open'}
-        </Button>
+        <Button onClick={() => setOptionsVisible((v) => !v)}>{optionsVisible() ? 'close' : 'open'}</Button>
       </div>
       <Show when={optionsVisible()}>
         <div class={clsx(styles.options)}>
