@@ -26,8 +26,8 @@ export const Result = (props: { result: ResultType | undefined; index: number; b
           </Show>
         </span>
       </div>
-      <Show when={store.tests[props.index].description}>
-        <span class={styles.description}>{untrack(() => store.tests[props.index].description)}</span>
+      <Show when={untrack(() => store.tests[props.index].description)}>
+        {(description) => <span class={styles.description}>{description()}</span>}
       </Show>
     </div>
     <Show when={props.result}>

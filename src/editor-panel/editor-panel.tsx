@@ -46,6 +46,12 @@ export const EditorPanel = () => {
                     tests.splice(i(), 1)
                   })
                 )
+                setStore(
+                  'modules',
+                  produce((modules) => {
+                    modules.splice(i(), 1)
+                  })
+                )
               }}
               setModule={(module) => setStore('modules', i(), () => module)}
               setTest={(...args) => setStore('tests', i(), ...args)}
