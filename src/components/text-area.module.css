@@ -1,6 +1,7 @@
 .text-area-container {
   border: 1px solid var(--color-grey-light);
   display: flex;
+  overflow: hidden;
   padding: 5px;
   &:focus,
   &:focus-within,
@@ -11,11 +12,12 @@
 }
 .text-area {
   background: none;
-  font-family: GeistMono;
-  color: var(--color-grey-dark);
   border: none;
+  color: var(--color-grey-dark);
   flex: 1;
+  font-family: GeistMono;
   font-size: 10pt;
+  overflow: hidden;
   resize: none;
   &:focus {
     outline: none;

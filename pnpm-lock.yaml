@@ -5,15 +5,15 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@amoutonbrady/lz-string':
-    specifier: ^0.1.0
-    version: 0.1.0
   '@monaco-editor/loader':
     specifier: ^1.4.0
     version: 1.4.0(monaco-editor@0.46.0)
   clsx:
     specifier: ^2.1.0
     version: 2.1.0
+  fflate:
+    specifier: ^0.8.2
+    version: 0.8.2
   monaco:
     specifier: ^1.201704190613.0
     version: 1.201704190613.0
@@ -39,10 +39,6 @@ devDependencies:
     version: 2.8.2(solid-js@1.8.11)(vite@5.0.11)
 
 packages:
-
-  /@amoutonbrady/lz-string@0.1.0:
-    resolution: {integrity: sha512-WsUuFexe01PUHKD8SUdiV3OQmauZWKyoo/7bJx3pj1l5SxLSe5//l1nQcU3DJlYL4JnhA8SqImT0/1xgUt6k5g==}
-    dev: false
 
   /@ampproject/remapping@2.2.1:
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
@@ -1112,6 +1108,10 @@ packages:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
     engines: {node: '>=0.8.0'}
     dev: true
+
+  /fflate@0.8.2:
+    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
+    dev: false
 
   /fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}

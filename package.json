@@ -15,9 +15,9 @@
     "vite-plugin-solid": "^2.8.2"
   },
   "dependencies": {
-    "@amoutonbrady/lz-string": "^0.1.0",
     "@monaco-editor/loader": "^1.4.0",
     "clsx": "^2.1.0",
+    "fflate": "^0.8.2",
     "monaco": "^1.201704190613.0",
     "solid-js": "^1.8.11",
     "solid-textarea-autosize": "^0.0.5",

@@ -1,12 +1,28 @@
-import { compressToURL, decompressFromURL } from '@amoutonbrady/lz-string'
 import { createStore } from 'solid-js/store'
 import { Test } from './editor-panel/test-editor'
 import { ResultType } from './result-panel/result-panel'
 import { waitFor, when } from './utils'
 
+import { compressSync, decompressSync, strFromU8, strToU8 } from 'fflate'
+
+function base64ToBytes(base64: string) {
+  return Uint8Array.from(atob(base64), (m) => m.codePointAt(0)!)
+}
+
+function bytesToBase64(bytes) {
+  return btoa(String.fromCodePoint(...bytes))
+}
+
+export function compress(s: string) {
+  return bytesToBase64(compressSync(strToU8(JSON.stringify(s))))
+}
+export function uncompress(s: string) {
+  return JSON.parse(strFromU8(decompressSync(base64ToBytes(s))))
+}
+
 const params = new URLSearchParams(window.location.search)
 const state = params.get('state')
-let jsonString = state ? decompressFromURL(state) : undefined
+let jsonString = state ? uncompress(state) : undefined
 
 export const [store, setStore] = createStore<{
   description: string
@@ -38,22 +54,22 @@ export const [store, setStore] = createStore<{
           description: 'loop through array with for loop',
           code: `import { arr } from "./setup";
         
-  export default () => {
-    let sum = 0;
-    for(let i = 0; i < arr.length; i++){
-      sum += arr[i]
-    }
-  }`,
+export default () => {
+  let sum = 0;
+  for(let i = 0; i < arr.length; i++){
+    sum += arr[i]
+  }
+}`,
           height: 200,
         },
         {
           description: 'loop through array with forEach',
           code: `import { arr } from "./setup";
         
-  export default () => {
-    let sum = 0;
-    arr.forEach(value => sum += value)
-  }`,
+export default () => {
+  let sum = 0;
+  arr.forEach(value => sum += value)
+}`,
 
           height: 200,
         },
@@ -61,22 +77,22 @@ export const [store, setStore] = createStore<{
           description: 'loop through array with reduce',
           code: `import { arr } from "./setup";
         
-  export default () => {
-    let sum = arr.reduce((a,b) => a + b)
-  }`,
+export default () => {
+  let sum = arr.reduce((a,b) => a + b)
+}`,
         },
         {
           description: 'loop through array with map',
           code: `import { arr } from "./setup";
         
-  export default () => {
-    let sum = 0;
-    arr.map(value => sum += value)
-  }`,
+export default () => {
+  let sum = 0;
+  arr.map(value => sum += value)
+}`,
           height: 200,
         },
       ],
-      setup: { code: 'export const arr = new Array(100_000).fill("").map((v,i) => i);', height: 200 },
+      setup: { code: 'export const arr = new Array(100_000).fill("").map((v,i) => i);', height: 100 },
     }
   })(),
   results: {
@@ -188,7 +204,7 @@ export default () => {
 
 export const saveToUrl = () => {
   const json = JSON.stringify({ description: store.description, tests: store.tests, setup: store.setup })
-  const state = compressToURL(json)
+  const state = compress(json)
 
   console.log('json', json)
 
