@@ -21,7 +21,7 @@ export const SideBar = () => {
           {saved() ? 'saved!' : 'save'}
         </Button>
         <Button onClick={() => setStore('styles', 'mode', (mode) => (mode === 'dark' ? 'light' : 'dark'))}>
-          {store.styles.mode}
+          {store.styles.mode === 'dark' ? 'lighten' : 'darken'}
         </Button>
         <Link href="https://www.github.com/bigmistqke/bench-ts">github</Link>
       </div>

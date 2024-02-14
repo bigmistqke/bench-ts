@@ -41,3 +41,20 @@ h3 {
   font-size: 16pt;
   line-height: 16pt;
 }
+
+/* Example of custom scrollbar CSS */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* or any dark color matching your dark mode */
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-grey); /* or a lighter color for contrast */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

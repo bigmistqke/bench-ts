@@ -1,9 +1,9 @@
 .content-grid,
 .container {
   display: grid;
-  gap: 50px;
-  align-items: baseline;
-  grid-template-columns: [full-start] 25px [breakout-start] 10px [content-start] 1fr [content-end breakout-end extra-start] 10px 100px [full-end extra-end];
+  gap: 50px 0px;
+  align-items: center;
+  grid-template-columns: [full-start] 50px [breakout-start] 50px [content-start] 1fr [content-end breakout-end extra-start] 100px [full-end extra-end];
 }
 
 .content-grid > * {

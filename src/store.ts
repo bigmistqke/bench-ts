@@ -11,7 +11,7 @@ let jsonString = state ? decompressFromURL(state) : undefined
 export const [store, setStore] = createStore<{
   description: string
   tests: Test[]
-  setup: string
+  setup: { code: string; height: number }
   results: {
     count: undefined | number
     bestTotal: undefined | number
@@ -44,7 +44,7 @@ export const [store, setStore] = createStore<{
       sum += arr[i]
     }
   }`,
-          module: undefined,
+          height: 200,
         },
         {
           description: 'loop through array with forEach',
@@ -54,7 +54,8 @@ export const [store, setStore] = createStore<{
     let sum = 0;
     arr.forEach(value => sum += value)
   }`,
-          module: undefined,
+
+          height: 200,
         },
         {
           description: 'loop through array with reduce',
@@ -63,7 +64,6 @@ export const [store, setStore] = createStore<{
   export default () => {
     let sum = arr.reduce((a,b) => a + b)
   }`,
-          module: undefined,
         },
         {
           description: 'loop through array with map',
@@ -73,10 +73,10 @@ export const [store, setStore] = createStore<{
     let sum = 0;
     arr.map(value => sum += value)
   }`,
-          module: undefined,
+          height: 200,
         },
       ],
-      setup: 'export const arr = new Array(100_000).fill("").map((v,i) => i);',
+      setup: { code: 'export const arr = new Array(100_000).fill("").map((v,i) => i);', height: 200 },
     }
   })(),
   results: {
@@ -102,14 +102,13 @@ export const actions = {
       {
         description: '',
         title: `Test ${test.length}`,
+        autoFocus: true,
         code: `import { } from "./setup"
 
 export default () => {
 
 }`,
-        module: undefined,
-        getModule: undefined,
-        autoFocus: true,
+        height: 200,
       },
     ]),
 
@@ -118,7 +117,6 @@ export default () => {
       if (modules.every((v) => !v)) return
       runId++
       const id = runId
-      // setRunCount(0)
       setStore('results', 'count', 0)
       const run = async () => {
         if (id !== runId) throw true
@@ -126,7 +124,6 @@ export default () => {
         for (let i = 0; i < modules.length; i++) {
           if (id !== runId) throw true
           const module = modules[i]
-          console.log('module', module)
           try {
             if (!module || !(typeof module === 'function')) {
               results[i] = undefined
@@ -150,7 +147,6 @@ export default () => {
                 if (store.options.delayBetween) {
                   await waitFor(store.options.delayBetween)
                 }
-                // await waitFor(0)
                 setStore('results', 'count', (c) => (c !== undefined ? c + 1 : undefined))
               }
               const total = times?.reduce((a, b) => a + b)
@@ -159,6 +155,7 @@ export default () => {
                 total,
                 highest,
                 lowest,
+                times,
               }
               if (store.options.delayAfter) {
                 await waitFor(store.options.delayAfter)
@@ -178,6 +175,7 @@ export default () => {
         let bestTotal = Infinity
         values.forEach((result) => {
           if (!result) return
+
           if (result.total < bestTotal) bestTotal = result.total
         })
 

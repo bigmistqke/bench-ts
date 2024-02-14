@@ -16,11 +16,15 @@ import { Group } from './group'
 export type Test = {
   description: string
   code: string
+  height: number
 }
 
 let _id = 0
 export const TestEditor: Component<
-  Omit<ComponentProps<typeof Editor>, 'name' | 'title' | 'description' | 'onCompilation' | 'mode'> & {
+  Omit<
+    ComponentProps<typeof Editor>,
+    'name' | 'title' | 'description' | 'onCompilation' | 'mode' | 'onResize' | 'height'
+  > & {
     onDelete: () => void
     test: Test
     setTest: SetStoreFunction<Test>
@@ -43,6 +47,8 @@ export const TestEditor: Component<
         <Editor
           {...props.test}
           {...rest}
+          onResize={(height) => props.setTest({ height })}
+          height={props.test.height}
           onCompilation={({ module }) => props.setModule(module.default)}
           shouldCompile={props.shouldCompile}
           initialValue={props.test.code}

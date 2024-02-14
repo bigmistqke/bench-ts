@@ -7,6 +7,7 @@ import {
   createRenderEffect,
   createResource,
   createSignal,
+  mergeProps,
   splitProps,
   untrack,
 } from 'solid-js'
@@ -72,12 +73,15 @@ export const Editor: Component<
     name: string
     alias?: Record<string, string>
     mode: 'light' | 'dark'
+    height?: number
+    onResize: (value: number) => void
   }
 > = (props) => {
+  const merged = mergeProps({ height: 200 }, props)
+  const [, htmlProps] = splitProps(props, ['initialValue', 'onBlur', 'onInitialized'])
+
   let container: HTMLDivElement
   const [isResizing, setIsResizing] = createSignal(false)
-  const [, htmlProps] = splitProps(props, ['initialValue', 'onBlur', 'onInitialized'])
-  const [height, setHeight] = createSignal(200)
 
   const model = createMemo(() =>
     when(monaco)((monaco) =>
@@ -88,21 +92,19 @@ export const Editor: Component<
       )
     )
   )
-
   const [client] = createResource(all(typescriptWorker, model), ([worker, model]) => worker(model.uri))
-
   const [code, setCode] = createSignal<string | undefined>(props.initialValue)
-
   const [module] = createResource(
     all(client, model, code, () => props.shouldCompile !== false),
     async ([client, model]) =>
+      // use monaco's typescript-server to transpile file from ts to js
       client.getEmitOutput(`file://${model.uri.path}`).then(async (result) => {
         if (result.outputFiles.length > 0) {
           // get module-url of transpiled code
           const url = URL.createObjectURL(
             new Blob(
               [
-                // replace local imports with their respective module-urls
+                // replace local imports with respective module-urls
                 modifyImportPaths(result.outputFiles[0].text, props.alias),
               ],
               {
@@ -134,9 +136,12 @@ export const Editor: Component<
       })
 
       if (props.autoFocus) {
-        editor.focus()
-        if (container.parentElement?.parentElement?.parentElement) {
-          container.parentElement.parentElement.parentElement.scrollTop = container.offsetTop
+        const scrollContainer = container.parentElement?.parentElement?.parentElement?.parentElement
+        if (scrollContainer) {
+          setTimeout(() => {
+            editor.focus()
+            scrollContainer.scrollTop = container.offsetTop
+          }, 100)
         }
       }
 
@@ -149,7 +154,6 @@ export const Editor: Component<
       })
 
       createEffect(() => {
-        console.log('set theme!!!')
         monaco.editor.setTheme(props.mode === 'light' ? 'vs-light' : 'vs-dark')
       })
     })
@@ -158,11 +162,9 @@ export const Editor: Component<
   createEffect(() => when(module)((module) => props.onCompilation?.(module)))
 
   const onMouseDown = async (e: MouseEvent) => {
-    const start = height()
+    const start = props.height || 200
     setIsResizing(true)
-    await cursor(e, (delta) => {
-      setHeight(start - delta.y)
-    })
+    await cursor(e, (delta) => props.onResize(start - delta.y))
     setIsResizing(false)
   }
 
@@ -171,7 +173,7 @@ export const Editor: Component<
       <div
         class={clsx(styles['editor-container'], isResizing() && styles.resizing)}
         style={{
-          height: `${height()}px`,
+          height: `${merged.height}px`,
         }}
       >
         <div ref={container!} {...htmlProps} class={styles['editor']} />

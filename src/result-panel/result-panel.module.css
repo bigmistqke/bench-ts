@@ -5,14 +5,17 @@
   height: 100vh;
 }
 
+.results-container {
+  transition: opacity 0.125s;
+}
+
 .result-panel {
   overflow: auto;
   flex: 1;
   border-bottom: 1px solid var(--color-grey);
 }
 
-.running .title,
-.running .result {
+.running .results-container {
   opacity: 0.5;
 }
 
@@ -42,6 +45,11 @@
   }
 }
 
+.results-container {
+  display: grid;
+  gap: 10px;
+}
+
 .results {
   display: grid;
   gap: 5px;
@@ -62,4 +70,8 @@
   font-size: 8pt;
   font-family: GeistMono;
   color: var(--color-grey-dark);
+}
+
+.run-tests {
+  padding-top: 9px;
 }

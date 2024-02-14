@@ -8,6 +8,9 @@ dependencies:
   '@amoutonbrady/lz-string':
     specifier: ^0.1.0
     version: 0.1.0
+  '@formkit/auto-animate':
+    specifier: ^0.8.1
+    version: 0.8.1
   '@monaco-editor/loader':
     specifier: ^1.4.0
     version: 1.4.0(monaco-editor@0.46.0)
@@ -17,6 +20,9 @@ dependencies:
   monaco:
     specifier: ^1.201704190613.0
     version: 1.201704190613.0
+  solid-auto-animate:
+    specifier: ^0.3.0
+    version: 0.3.0(@formkit/auto-animate@0.8.1)(solid-js@1.8.11)
   solid-js:
     specifier: ^1.8.11
     version: 1.8.11
@@ -615,6 +621,10 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@formkit/auto-animate@0.8.1:
+    resolution: {integrity: sha512-0/Z2cuNXWVVIG/l0SpcHAWFhGdvLJ8DRvEfRWvmojtmRWfEy+LWNwgDazbZqY0qQYtkHcoEK3jBLkhiZaB/4Ig==}
+    dev: false
 
   /@jridgewell/gen-mapping@0.3.3:
     resolution: {integrity: sha512-HLhSWOLRi875zjjMG/r+Nv0oCW8umGb0BgEhyX3dDX3egwZtB8PqLnjz3yedt8R5StBrzcg4aBpnh8UA9D1BoQ==}
@@ -1248,6 +1258,17 @@ packages:
   /seroval@1.0.4:
     resolution: {integrity: sha512-qQs/N+KfJu83rmszFQaTxcoJoPn6KNUruX4KmnmyD0oZkUoiNvJ1rpdYKDf4YHM05k+HOgCxa3yvf15QbVijGg==}
     engines: {node: '>=10'}
+
+  /solid-auto-animate@0.3.0(@formkit/auto-animate@0.8.1)(solid-js@1.8.11):
+    resolution: {integrity: sha512-6AuaWizg9Qttj/2mV4doae00cQwYj/5/Wn4YWu+rGZQyVcf/HsU++xRA9hhpokElWEMlvham+uJvERRQ5lVS/w==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@formkit/auto-animate': ^0.8
+      solid-js: ^1.8
+    dependencies:
+      '@formkit/auto-animate': 0.8.1
+      solid-js: 1.8.11
+    dev: false
 
   /solid-devtools@0.29.2(solid-js@1.8.11)(vite@5.0.11):
     resolution: {integrity: sha512-sfGLBSIQ3E5dFha5UCE5wKnz+War99JNAOggfBbwhltXL8lbIG1PnKKB9N2pvloZuFzMtT/u1Qbb/ubqXnw2Sg==}

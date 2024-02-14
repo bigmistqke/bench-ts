@@ -9,13 +9,13 @@ import { OptionsPanel } from './options-panel'
 import grid from './result-panel-grid.module.css'
 import styles from './result-panel.module.css'
 
-export type ResultType = { highest: number; lowest: number; total: number }
+export type ResultType = { highest: number; lowest: number; total: number; times: number[] }
 
-const order: (keyof ResultType)[] = ['total', 'highest', 'lowest']
+const order = ['total', 'highest', 'lowest'] satisfies (keyof ResultType)[]
 
 export const Result = (props: { result: ResultType | undefined; index: number; bestTotal: number }) => (
-  <>
-    <div class={clsx(styles['title-container'], grid.break)}>
+  <div class={styles['results-container']}>
+    <div class={styles['title-container']}>
       <div class={styles.title}>
         <h3>
           <a href={`#Test${props.index}`}>Test {props.index}</a>
@@ -30,13 +30,17 @@ export const Result = (props: { result: ResultType | undefined; index: number; b
         <span class={styles.description}>{untrack(() => store.tests[props.index].description)}</span>
       </Show>
     </div>
-    <div style={{ 'margin-bottom': '25px' }}>
-      <Show when={props.result}>
-        {(result) => (
+    <Show when={props.result}>
+      {(result) => {
+        return (
           <>
             <div class={styles.results}>
+              <label>median</label>
+              <span>
+                {[...result().times].sort((a, b) => a - b)[Math.floor(result().times.length / 2)].toFixed(2)}ms
+              </span>
               <label>mean</label>
-              <span>{(result().total / store.options.amount).toFixed(2)}ms</span>
+              <span>{(result().total / untrack(() => store.options.amount)).toFixed(2)}ms</span>
               <For each={order}>
                 {(key) => (
                   <>
@@ -47,10 +51,10 @@ export const Result = (props: { result: ResultType | undefined; index: number; b
               </For>
             </div>
           </>
-        )}
-      </Show>
-    </div>
-  </>
+        )
+      }}
+    </Show>
+  </div>
 )
 
 export const ResultPanel = (props: { loading: boolean }) => (
@@ -63,11 +67,8 @@ export const ResultPanel = (props: { loading: boolean }) => (
       )}
     >
       <h2 class={grid.break}>Results</h2>
-      <div class={clsx(grid.extra, general.sticky, general.center)} style={{ gap: '10px' }}>
-        <Button
-          class={general['extra-button']}
-          onClick={() => !store.results.count !== undefined && !props.loading && actions.runTests()}
-        >
+      <div class={clsx(grid.extra, general.sticky, general.center, styles['run-tests'])} style={{ gap: '10px' }}>
+        <Button onClick={() => !store.results.count !== undefined && !props.loading && actions.runTests()}>
           {store.results.count !== undefined ? `(${store.results.count})` : props.loading ? 'loading' : 'run'}
         </Button>
       </div>

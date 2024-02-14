@@ -22,4 +22,7 @@
   height: 5px;
   background: var(--color-grey-light);
   cursor: ns-resize;
+  &:hover {
+    background: var(--color-grey);
+  }
 }
