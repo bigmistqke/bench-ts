@@ -15,7 +15,7 @@ export const [store, setStore] = createStore<{
   results: {
     count: undefined | number
     bestTotal: undefined | number
-    values: (Omit<ResultType, 'mean'> | undefined)[]
+    values: (ResultType | undefined)[]
   }
   modules: (((...args: any[]) => any) | undefined)[]
   options: {

@@ -13,6 +13,46 @@ export type ResultType = { highest: number; lowest: number; total: number }
 
 const order: (keyof ResultType)[] = ['total', 'highest', 'lowest']
 
+export const Result = (props: { result: ResultType | undefined; index: number; bestTotal: number }) => (
+  <>
+    <div class={clsx(styles['title-container'], grid.break)}>
+      <div class={styles.title}>
+        <h3>
+          <a href={`#Test${props.index}`}>Test {props.index}</a>
+        </h3>
+        <span style={{ color: props.result?.total === props.bestTotal ? 'green' : 'red' }}>
+          <Show when={props.result} fallback="error">
+            {props.result!.total === props.bestTotal ? 1 : (props.result!.total / props.bestTotal).toFixed(2)}
+          </Show>
+        </span>
+      </div>
+      <Show when={store.tests[props.index].description}>
+        <span class={styles.description}>{untrack(() => store.tests[props.index].description)}</span>
+      </Show>
+    </div>
+    <div style={{ 'margin-bottom': '25px' }}>
+      <Show when={props.result}>
+        {(result) => (
+          <>
+            <div class={styles.results}>
+              <label>mean</label>
+              <span>{(result().total / store.options.amount).toFixed(2)}ms</span>
+              <For each={order}>
+                {(key) => (
+                  <>
+                    <label>{key}</label>
+                    <span>{result()[key].toFixed(2)}ms</span>
+                  </>
+                )}
+              </For>
+            </div>
+          </>
+        )}
+      </Show>
+    </div>
+  </>
+)
+
 export const ResultPanel = (props: { loading: boolean }) => (
   <div class={clsx(general.panel, styles['result-panel-container'])}>
     <div
@@ -34,45 +74,7 @@ export const ResultPanel = (props: { loading: boolean }) => (
       <Show when={store.results.bestTotal}>
         {(bestTotal) => (
           <For each={store.results.values}>
-            {(result, index) => (
-              <>
-                <div class={clsx(styles['title-container'], grid.break)}>
-                  <div class={styles.title}>
-                    <h3>
-                      <a href={`#Test${index()}`}>Test {index()}</a>
-                    </h3>
-                    <span style={{ color: result?.total === bestTotal() ? 'green' : 'red' }}>
-                      <Show when={result} fallback="error">
-                        {result!.total === bestTotal() ? 1 : (result!.total / bestTotal()).toFixed(2)}
-                      </Show>
-                    </span>
-                  </div>
-                  <Show when={store.tests[index()].description}>
-                    <span class={styles.description}>{untrack(() => store.tests[index()].description)}</span>
-                  </Show>
-                </div>
-                <div style={{ 'margin-bottom': '25px' }}>
-                  <Show when={result}>
-                    {(result) => (
-                      <>
-                        <div class={styles.results}>
-                          <label>mean</label>
-                          <span>{(result().total / store.options.amount).toFixed(2)}ms</span>
-                          <For each={order}>
-                            {(key) => (
-                              <>
-                                <label>{key}</label>
-                                <span>{result()[key].toFixed(2)}ms</span>
-                              </>
-                            )}
-                          </For>
-                        </div>
-                      </>
-                    )}
-                  </Show>
-                </div>
-              </>
-            )}
+            {(result, index) => <Result result={result} index={index()} bestTotal={bestTotal()} />}
           </For>
         )}
       </Show>
